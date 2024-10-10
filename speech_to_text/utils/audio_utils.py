@@ -24,9 +24,10 @@ def create_audio_stream(selected_device, callback):
     CHUNK = 512
     CHANNELS = 1
     DTYPE = "float32"
+    jabra = "hw:1,0"
 
     stream = sd.InputStream(
-        device=selected_device,
+        device=jabra,
         channels=CHANNELS,
         samplerate=RATE,
         callback=callback,

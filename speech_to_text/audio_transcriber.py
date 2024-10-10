@@ -16,7 +16,7 @@ from .openai_api import OpenAIAPI
 
 
 class AppOptions(NamedTuple):
-    audio_device: int
+    audio_device: int = 6
     silence_limit: int = 8
     noise_threshold: int = 5
     non_speech_threshold: float = 0.1
