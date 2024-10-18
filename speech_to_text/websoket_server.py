@@ -37,6 +37,7 @@ class WebSocketServer:
 
     async def send_message(self, message: str):
         if self.websocket is not None:
+            print('msg:${str}')
             await self.websocket.send(message)
 
     def send_message_threadsafe(self, message: str):
