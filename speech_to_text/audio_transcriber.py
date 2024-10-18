@@ -3,6 +3,7 @@ import functools
 import eel
 import queue
 import numpy as np
+from pynput.keyboard import Controller, Key
 
 from typing import NamedTuple
 from faster_whisper import WhisperModel
@@ -21,6 +22,7 @@ class AppOptions(NamedTuple):
     noise_threshold: int = 5
     non_speech_threshold: float = 0.1
     include_non_speech: bool = False
+    emulate_keyboard: bool = False
     create_audio_file: bool = True
     use_websocket_server: bool = False
     use_openai_api: bool = False
@@ -36,6 +38,7 @@ class AudioTranscriber:
         websocket_server: WebSocketServer,
         openai_api: OpenAIAPI,
     ):
+        self.keyboard = Controller()
         self.event_loop = event_loop
         self.whisper_model: WhisperModel = whisper_model
         self.transcribe_settings = transcribe_settings
@@ -78,6 +81,10 @@ class AudioTranscriber:
 
                     for segment in segments:
                         eel.display_transcription(segment.text)
+
+                        if self.app_options.emulate_keyboard:
+                            self.keyboard.type(segment.text)
+
                         if self.websocket_server is not None:
                             await self.websocket_server.send_message(segment.text)
 

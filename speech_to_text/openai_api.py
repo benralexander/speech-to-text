@@ -1,23 +1,34 @@
+import httpx
 import openai
 import os
+from openai import OpenAI
+from urllib.parse import urljoin
+
 
 
 class OpenAIAPI:
     def __init__(self):
-        openai.api_key = os.getenv("OPENAI_API_KEY")
-        self.MODEL_NAME = "gpt-3.5-turbo"
-        self.MAX_TOKENS = 2000
+        self.base_url = os.getenv("OPENAI_BASE_URL")
+
 
     def text_proofreading(self, text: str):
-        response = openai.ChatCompletion.create(
-            model=self.MODEL_NAME,
-            max_tokens=self.MAX_TOKENS,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Please proofread. Please return only the proofreading results.",
-                },
-                {"role": "user", "content": text},
-            ],
+        CHAT_COMPLETION_PATH = 'audio/completions/text'
+        response = httpx.post(
+            urljoin(self.base_url, CHAT_COMPLETION_PATH),
+            data={'content',text}
         )
         return response.choices[0]["message"]["content"].strip()
+
+    # def file_proofreading(self, fd: File):
+    #     self.base_url = os.getenv("OPENAI_BASE_URL")
+    #     self.openai_client = OpenAI(base_url=f"{self.base_url}", api_key=f"{self.api_key}")
+    #     self.MODEL_NAME = "gpt-3.5-turbo"
+    #     response = self.openai_client.post(
+    #         OPENAI_BASE_URL + CHAT_COMPLETION_PATH,
+    #         files={"file": fd},
+    #         data=REQUEST_KWARGS,
+    #     )
+    #     return response.choices[0]["message"]["content"].strip()
+
+
+
