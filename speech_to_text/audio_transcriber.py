@@ -4,6 +4,7 @@ import eel
 import queue
 import numpy as np
 from pynput.keyboard import Controller, Key
+import string
 
 from typing import NamedTuple
 from faster_whisper import WhisperModel
@@ -80,13 +81,14 @@ class AudioTranscriber:
                     segments, _ = await self.event_loop.run_in_executor(executor, func)
 
                     for segment in segments:
-                        eel.display_transcription(segment.text)
+                        no_punc_text = segment.text.translate(str.maketrans('', '', string.punctuation))
+                        eel.display_transcription(no_punc_text)
 
                         if self.app_options.emulate_keyboard:
-                            self.keyboard.type(segment.text)
+                            self.keyboard.type(no_punc_text)
 
                         if self.websocket_server is not None:
-                            await self.websocket_server.send_message(segment.text)
+                            await self.websocket_server.send_message(no_punc_text)
 
                 except queue.Empty:
                     # Skip to the next iteration if a timeout occurs

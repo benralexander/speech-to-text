@@ -63,6 +63,8 @@ def get_user_settings():
 def start_transcription(user_settings):
     global transcriber, event_loop, thread, websocket_server, openai_api
     try:
+        user_settings['transcribe_settings']['prepend_punctuations'] = ''
+        user_settings['transcribe_settings']['append_punctuations'] = ''
         (
             filtered_app_settings,
             filtered_model_settings,
