@@ -2,6 +2,12 @@
 
 Real-time transcription using [faster-whisper](https://github.com/guillaumekln/faster-whisper)
 
+---
+*** Note: I (BA)  took an existing repo [speach-to-text](https://github.com/reriiasu/speech-to-text), and now I am merely modifying it to suit my own needs.
+Any mistakes you find here are probably attributable to me.   ***Ben Alexander***
+
+---
+
 ![architecture](docs/architecture.png)
 
 Accepts audio input from a microphone using a [Sounddevice](https://github.com/spatialaudio/python-sounddevice). By using [Silero VAD](https://github.com/snakers4/silero-vad)(Voice Activity Detection), silent parts are detected and recognized as one voice data. This audio data is converted to text using Faster-Whisper.
