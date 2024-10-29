@@ -10,7 +10,7 @@ from .utils.audio_utils import get_valid_input_devices, base64_to_audio
 from .utils.file_utils import read_json, write_json, write_audio
 from .websoket_server import WebSocketServer
 from .openai_api import OpenAIAPI
-
+from speech_to_text.modalities import Modalalities
 eel.init("web")
 
 transcriber: AudioTranscriber = None
@@ -74,6 +74,7 @@ def start_transcription(user_settings):
         whisper_model = WhisperModel(**filtered_model_settings)
         app_settings = AppOptions(**filtered_app_settings)
         event_loop = asyncio.new_event_loop()
+        modalities = Modalalities()
 
         if app_settings.use_websocket_server:
             websocket_server = WebSocketServer(event_loop)
@@ -91,6 +92,7 @@ def start_transcription(user_settings):
             app_settings,
             websocket_server,
             openai_api,
+            modalities
         )
         asyncio.set_event_loop(event_loop)
         thread = threading.Thread(target=event_loop.run_forever, daemon=True)

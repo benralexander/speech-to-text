@@ -10,11 +10,14 @@ from typing import NamedTuple
 from faster_whisper import WhisperModel
 from concurrent.futures import ThreadPoolExecutor
 
-from .utils.audio_utils import create_audio_stream
-from .vad import Vad
-from .utils.file_utils import write_audio
-from .websoket_server import WebSocketServer
-from .openai_api import OpenAIAPI
+from speech_to_text.utils.shared_types import OutputSpec
+from speech_to_text.modalities import Modalalities
+from speech_to_text.utils.audio_utils import create_audio_stream
+from speech_to_text.vad import Vad
+from speech_to_text.utils.file_utils import write_audio
+from speech_to_text.websoket_server import WebSocketServer
+from speech_to_text.openai_api import OpenAIAPI
+
 
 
 class AppOptions(NamedTuple):
@@ -38,8 +41,8 @@ class AudioTranscriber:
         app_options: AppOptions,
         websocket_server: WebSocketServer,
         openai_api: OpenAIAPI,
+        modalities: Modalalities,
     ):
-        self.keyboard = Controller()
         self.event_loop = event_loop
         self.whisper_model: WhisperModel = whisper_model
         self.transcribe_settings = transcribe_settings
@@ -55,6 +58,10 @@ class AudioTranscriber:
         self.stream = None
         self._running = asyncio.Event()
         self._transcribe_task = None
+        self.output_spec = OutputSpec(include_debug = True,
+                                    emulate_keyboard = False,
+                                    keyboard= Controller())
+        self.modalities = modalities
 
     async def transcribe_audio(self):
         # Ignore parameters that affect performance
@@ -80,15 +87,18 @@ class AudioTranscriber:
                     # Run the transcribe method in a thread
                     segments, _ = await self.event_loop.run_in_executor(executor, func)
 
-                    for segment in segments:
-                        no_punc_text = segment.text.translate(str.maketrans('', '', string.punctuation))
-                        eel.display_transcription(no_punc_text)
+                    # for segment in segments:
+                        # no_punc_text = segment.text.translate(str.maketrans('', '', string.punctuation))
+                        # eel.display_transcription(no_punc_text)
+                        #
+                        # if self.app_options.emulate_keyboard:
+                        #     self.keyboard.type(no_punc_text)
+                        #
+                        # if self.websocket_server is not None:
+                        #     await self.websocket_server.send_message(no_punc_text)
+                    assert isinstance(segments, object)
+                    self.modalities.process_speech(self.output_spec,self.websocket_server,segments)
 
-                        if self.app_options.emulate_keyboard:
-                            self.keyboard.type(no_punc_text)
-
-                        if self.websocket_server is not None:
-                            await self.websocket_server.send_message(no_punc_text)
 
                 except queue.Empty:
                     # Skip to the next iteration if a timeout occurs
